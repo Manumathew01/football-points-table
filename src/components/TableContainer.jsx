@@ -38,10 +38,6 @@ const TableContainer = () => {
     setYearFilter(event.target.value);
   };
 
-  // if (isTableLoaded || isYearLoaded) {
-  //   return <TableSkeleton />;
-  // }
-
   return (
     <div className="flex drop-shadow-xl p-10">
       <div className="h-6">
@@ -62,9 +58,9 @@ const TableContainer = () => {
           <option value="none" selected disabled hidden>
             {yearFilter ? yearFilter : 'Choose year'}
           </option>
-          {yearData?.data?.seasons.map((season) => {
+          {yearData?.data?.seasons.map((season, key) => {
             return (
-              <option value={`${season.year} - ${season.year + 1}`}>
+              <option key={key} value={`${season.year} - ${season.year + 1}`}>
                 {season.year} - {season.year + 1}
               </option>
             );
@@ -77,6 +73,7 @@ const TableContainer = () => {
       ) : (
         <div className="mx-64 bg-gray-50 p-4">
           <TableHeader
+            leagueId={league}
             league={tableData?.data?.name ? tableData?.data?.name : ''}
             season={yearFilter ? yearFilter : '2022 - 2023'}
           />
@@ -102,6 +99,7 @@ const TableContainer = () => {
                       className={`text-sm space-x-3 tracking-wider pt-2 border-b text-center ${
                         key === 16 ? 'border-red-600' : key === 3 ? 'border-green-600' : ' '
                       }`}
+                      key={key}
                     >
                       <td className="flex items-center p-2">
                         <div className="p-1">{key + 1}</div>
