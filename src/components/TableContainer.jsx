@@ -1,26 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useQuery } from 'react-query';
 import TableHeader from './TableHeader.jsx';
 import TableSkeleton from './TableSkeleton.jsx';
+import TableContext from '../providers/TableContext.jsx';
+import { fetchTable, fetchSeasons } from '../services.js';
 
 const TableContainer = () => {
-  const [yearFilter, setYearFilter] = useState('2022 - 2023');
-  const [league, setLeague] = useState('eng.1');
-
-  const fetchSeasons = async (league) => {
-    const seasons = await fetch(`http://api-football-standings.azharimm.dev/leagues/${league}/seasons`);
-    return seasons.json();
-  };
-
-  const fetchTable = async (yearFilter, league) => {
-    const response = await fetch(
-      `http://api-football-standings.azharimm.dev/leagues/${league}/standings?season=${yearFilter.slice(
-        0,
-        5,
-      )}&sort=asc`,
-    );
-    return response.json();
-  };
+  const { league, setLeague, yearFilter, selectHandler } = useContext(TableContext);
 
   const { data: tableData, isLoading: isTableLoaded } = useQuery(
     ['yearTable', yearFilter, league],
@@ -33,10 +19,6 @@ const TableContainer = () => {
   const { data: yearData, isLoading: isYearLoaded } = useQuery(['seasons', league], () => fetchSeasons(league), {
     refetchOnWindowFocus: false,
   });
-
-  const selectHandler = (event) => {
-    setYearFilter(event.target.value);
-  };
 
   return (
     <div className="flex drop-shadow-xl p-10">
@@ -72,24 +54,14 @@ const TableContainer = () => {
         <TableSkeleton className="mx-64" />
       ) : (
         <div className="mx-64 bg-gray-50 p-4">
-          <TableHeader
-            leagueId={league}
-            league={tableData?.data?.name ? tableData?.data?.name : ''}
-            season={yearFilter ? yearFilter : '2022 - 2023'}
-          />
+          <TableHeader league={tableData?.data?.name ? tableData?.data?.name : ''} />
           <div className="overflow-x-auto">
             <table className="table-auto">
               <thead className="border-b-2">
-                <tr className="text-sm lg:text-lg font-bold text-purple-900 tracking-wider text-center ">
-                  <th className="p-1 md:p-3 text-left">Club</th>
-                  <th className="p-1 md:p-3">MP</th>
-                  <th className="p-1 md:p-3">W</th>
-                  <th className="p-1 md:p-3">D</th>
-                  <th className="p-1 md:p-3">L</th>
-                  <th className="p-1 md:p-3">GF</th>
-                  <th className="p-1 md:p-3">GA</th>
-                  <th className="p-1 md:p-3">GD</th>
-                  <th className="p-1 md:p-3">Pts</th>
+                <tr className="text-sm lg:text-lg font-bold text-purple-900 tracking-wider text-center">
+                  {['Club', 'MP', 'W', 'D', 'L', 'GF', 'GA', 'GD', 'Pts'].map((title) => (
+                    <th className="p-1 md:p-3 first-of-type:text-left">{title}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -97,7 +69,11 @@ const TableContainer = () => {
                   return (
                     <tr
                       className={`text-sm space-x-3 tracking-wider pt-2 border-b text-center ${
-                        key === 16 ? 'border-red-600' : key === 3 ? 'border-green-600' : ' '
+                        key === tableData?.data?.standings.length - 4
+                          ? 'border-red-600'
+                          : key === 3
+                          ? 'border-green-600'
+                          : ' '
                       }`}
                       key={key}
                     >

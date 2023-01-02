@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { ReactComponent as PremierSvg } from '../assets/Premier.svg';
 import { ReactComponent as LaLigaSvg } from '../assets/LaLiga.svg';
 import { ReactComponent as SerieASvg } from '../assets/SerieA.svg';
 import { ReactComponent as Ligue1Svg } from '../assets/Ligue1.svg';
 import { ReactComponent as BundesligaSvg } from '../assets/Bundesliga.svg';
+import TableContext from '../providers/TableContext';
 
-const TableHeader = ({ leagueId, league, season }) => {
+const TableHeader = ({ league }) => {
+  const { league: leagueId, yearFilter: season } = useContext(TableContext);
+
   return (
     <div className="border-b-2 pb-4">
       <div className="flex shrink items-center">
